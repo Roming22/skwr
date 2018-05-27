@@ -1,0 +1,13 @@
+[Unit]
+Description=${DESCRIPTION}
+After=docker.service
+Requires=docker.service
+
+[Service]
+#Restart=always
+TimeoutStartSec=0
+ExecStart=${TOOLS_DIR}/service/run.sh ${SERVICE_DIR}
+ExecStop=${TOOLS_DIR}/service/stop.sh ${SERVICE_DIR}
+
+[Install]
+WantedBy=multi-user.target

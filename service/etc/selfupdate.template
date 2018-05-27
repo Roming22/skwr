@@ -1,0 +1,12 @@
+[Unit]
+Description=${DESCRIPTION} (self update)
+After=docker.service
+Requires=docker.service
+
+[Service]
+#Restart=always
+TimeoutStartSec=0
+ExecStart=${TOOLS_DIR}/service/update.sh ${SERVICE_DIR}
+
+[Install]
+WantedBy=multi-user.target
