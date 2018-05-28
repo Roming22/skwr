@@ -1,12 +1,13 @@
 [Unit]
-Description=${DESCRIPTION} (self update)
+Description=${DESCRIPTION}
 After=docker.service
 Requires=docker.service
 
 [Service]
 #Restart=always
 TimeoutStartSec=0
-ExecStart=${TOOLS_DIR}/service/update.sh ${SERVICE_DIR}
+ExecStart=${BIN_DIR}/run/run.sh ${MODULE_DIR}
+ExecStop=${BIN_DIR}/stop/run.sh ${MODULE_DIR}
 
 [Install]
 WantedBy=multi-user.target

@@ -1,22 +1,21 @@
 #!/bin/bash
 SCRIPT_DIR=`cd $(dirname $0); pwd`
-TOOLS_DIR=`dirname $SCRIPT_DIR`
 
 while [[ "$#" -gt 0 ]]; do
         case $1 in
                 -v) set -x; VERBOSE="-v" ;;
-                *) SERVICE_DIR=`cd $1; pwd`;;
+                *) MODULE_DIR=`cd $1; pwd`;;
         esac
         shift
 done
 
-[[ -z "$SERVICE_DIR" ]] && echo "Specify the path of the service to install" && exit 1
+[[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
 
-export SERVICE_NAME=`basename $SERVICE_DIR`
+export MODULE_NAME=`basename $MODULE_DIR`
 
 
-echo "$SERVICE_NAME: Stopping"
-source $SERVICE_DIR/etc/service.cfg
+echo "$MODULE_NAME: Stopping"
+source $MODULE_DIR/etc/service.cfg
 
 # Kill running container
 CONTAINER_ID=`docker ps -q -f name=^/$NAME$`
