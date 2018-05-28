@@ -21,7 +21,7 @@ source $MODULE_DIR/etc/service.cfg
 
 
 for SERVICE in "" "-selfupdate"; do
-	[[ -e "/etc/systemd/system/$NAME.service" ]] && sudo systemctl stop $NAME$SERVICE
+	[[ -e "/etc/systemd/system/$NAME$SERVICE.service" ]] && sudo systemctl stop $NAME$SERVICE
 
 	# Generate systemd configuration
 	envsubst < $SCRIPT_DIR/etc/service$SERVICE.template | sudo tee /etc/systemd/system/$NAME$SERVICE.service >/dev/null
