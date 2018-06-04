@@ -20,8 +20,14 @@ case $ARCHITECTURE in
 	armv7*) ARCHITECTURE="armv7" ;;
 esac
 
-if [[ ! `docker build --rm --pull --tag $TAG -f $MODULE_DIR/docker/Dockerfile.$ARCHITECTURE $MODULE_DIR/docker` ]]; then
+if [[ ! `docker build --rm --pull --tag $TAG:build -f $MODULE_DIR/docker/Dockerfile.$ARCHITECTURE $MODULE_DIR/docker` ]]; then
 	exit 1
 fi
+
+if [[ `docker images -q $TAG:latest` != `docker images -q $TAG:build` ]]; then
+	docker tag $TAG:build $TAG:`date +%Y.%m%d.%H%M`
+	docker tag $TAG:build $TAG:latest
+fi
+docker rmi $TAG:build
 
 exit 0
