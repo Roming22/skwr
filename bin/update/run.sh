@@ -13,6 +13,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 [[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
+MODULE_NAME=`basename $MODULE_DIR`
 
 echo "##################################################"
 echo "Starting"
@@ -43,4 +44,7 @@ while [[ true ]]; do
 	else
 		echo "$MODULE_NAME: No update"
 	fi
+
+	# Clean-up old images
+	docker images | egrep "^$MODULE_NAME " | sort -r | tail -n +5 | awk '{print $3}' | xargs docker rmi
 done
