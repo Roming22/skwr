@@ -18,20 +18,20 @@ export MODULE_NAME=`basename $MODULE_DIR`
 
 set -e
 
-echo "$MODULE_NAME: Installing"
+echo "[$MODULE_NAME] Installing"
 source $MODULE_DIR/etc/service.cfg
 
 
 for SERVICE in "" "-selfupdate"; do
-	[[ -e "/etc/systemd/system/$NAME$SERVICE.service" ]] && sudo systemctl stop $NAME$SERVICE
+	[[ -e "/etc/systemd/system/$MODULE_NAME$SERVICE.service" ]] && sudo systemctl stop $MODULE_NAME$SERVICE
 
 	# Generate systemd configuration
-	envsubst < $SCRIPT_DIR/etc/service$SERVICE.template | sudo tee /etc/systemd/system/$NAME$SERVICE.service >/dev/null
+	envsubst < $SCRIPT_DIR/etc/service$SERVICE.template | sudo tee /etc/systemd/system/$MODULE_NAME$SERVICE.service >/dev/null
 
 	sudo systemctl daemon-reload
-	echo "Activating: $NAME$SERVICE"
-	sudo systemctl enable $NAME$SERVICE 2> /dev/null
-	sudo systemctl start $NAME$SERVICE
+	echo "[$MODULE_NAME] Activating $MODULE_NAME$SERVICE"
+	sudo systemctl enable $MODULE_NAME$SERVICE 2> /dev/null
+	sudo systemctl start $MODULE_NAME$SERVICE
 done
 
-echo "$MODULE_NAME: Success"
+echo "[$MODULE_NAME] Installed"

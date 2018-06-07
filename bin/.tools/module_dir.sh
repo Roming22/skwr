@@ -1,7 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR=`cd $(dirname $0); pwd`
 
-NAME=$1
+MODULE_NAME=${1}
 SKWR_MODULE_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
 
 find_module_root(){
@@ -14,9 +14,9 @@ find_module_root(){
 }
 
 # Registered module
-[[ `basename $NAME` = "$NAME" && -e "$SKWR_MODULE_DIR/$NAME" ]] && MODULE_DIR=$SKWR_MODULE_DIR/$NAME
+[[ `basename $MODULE_NAME` = "$MODULE_NAME" && -e "$SKWR_MODULE_DIR/$MODULE_NAME" ]] && MODULE_DIR=$SKWR_MODULE_DIR/$MODULE_NAME
 
 # Module as a path
-[[ -e "$NAME" ]] && MODULE_DIR=`find_module_root $NAME`
+[[ -e "$MODULE_NAME" ]] && MODULE_DIR=`find_module_root $MODULE_NAME`
 
 echo $MODULE_DIR

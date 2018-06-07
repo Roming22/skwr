@@ -19,7 +19,7 @@ export MODULE_NAME=`basename $MODULE_DIR`
 source $MODULE_DIR/etc/service.cfg
 
 echo "##################################################"
-echo "$MODULE_NAME: Connecting"
+echo "[$MODULE_NAME] Streaming logs"
 
 # Make sure to start the containers on a segregated network
-docker logs -f $NAME
+docker logs -f $MODULE_NAME

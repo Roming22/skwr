@@ -18,12 +18,12 @@ MODULE_NAME=`basename $MODULE_DIR`
 
 set -e
 
-echo "$MODULE_NAME: Uninstalling"
+echo "[$MODULE_NAME] Uninstalling"
 source $MODULE_DIR/etc/service.cfg
 
 # Uninstall services
-echo "$MODULE_NAME: Deactivating"
-for MODULE in $NAME.service $NAME-selfupdate.service; do
+echo "[$MODULE_NAME] Deactivating"
+for MODULE in $MODULE_NAME.service $MODULE_NAME-selfupdate.service; do
 	if [[ -e "/etc/systemd/system/$MODULE" ]]; then
 		sudo systemctl stop $MODULE
 		sudo systemctl disable $MODULE 2> /dev/null
@@ -37,4 +37,4 @@ sudo systemctl daemon-reload
 IMAGE_ID=`docker images -q $MODULE_NAME`
 [[ ! -z "$IMAGE_ID" ]] && docker rmi $IMAGE_ID
 
-echo "$MODULE_NAME: Success"
+echo "[$MODULE_NAME] Uninstalled"

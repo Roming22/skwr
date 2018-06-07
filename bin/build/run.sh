@@ -16,22 +16,20 @@ done
 MODULE_NAME=`basename $MODULE_DIR`
 
 DOCKER_DIR="$MODULE_DIR/docker"
-TAG=`basename $MODULE_DIR`
+TAG=`basename $(readlink -f $MODULE_DIR)`
 
-echo "$MODULE_NAME: Building"
+echo "[$MODULE_NAME] Building"
 ARCHITECTURE=`lscpu | head -1 | awk '{print $2}'`
 case $ARCHITECTURE in
 	armv7*) ARCHITECTURE="armv7" ;;
 esac
 
-if [[ ! `docker build --rm --pull --tag $TAG:build -f $MODULE_DIR/docker/Dockerfile.$ARCHITECTURE $MODULE_DIR/docker` ]]; then
-	exit 1
-fi
+docker build --rm --pull --tag $TAG:build -f $MODULE_DIR/docker/Dockerfile.$ARCHITECTURE $MODULE_DIR/docker || exit 1
 
 if [[ `docker images -q $TAG:latest` != `docker images -q $TAG:build` ]]; then
 	docker tag $TAG:build $TAG:`date +%Y.%m%d.%H%M`
 	docker tag $TAG:build $TAG:latest
 fi
-docker rmi $TAG:build
-
+docker rmi $TAG:build >/dev/null
+echo "[$MODULE_NAME] Built"
 exit 0

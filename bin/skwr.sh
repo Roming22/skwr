@@ -29,13 +29,14 @@ parse_args(){
     case $1 in
       -h|--help) usage; exit 0 ;;
       -v|--verbose) set -x; VERBOSE="-v" ;;
-      *) COMMAND=$1; shift; break ;;
+      *) COMMAND=$SCRIPT_DIR/$1/run.sh; shift; break ;;
     esac
     shift
   done
+  echo $COMMAND $* $VERBOSE
 }
 
 init
-parse_args $*
-$SCRIPT_DIR/$COMMAND/run.sh $* $VERBOSE
+COMMAND=`parse_args $*`
+$COMMAND
 

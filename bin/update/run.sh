@@ -16,7 +16,7 @@ done
 MODULE_NAME=`basename $MODULE_DIR`
 
 echo "##################################################"
-echo "Starting"
+echo "[$MODULE_NAME] Starting"
 source $MODULE_DIR/etc/service.cfg
 
 while [[ true ]]; do
@@ -32,19 +32,20 @@ while [[ true ]]; do
 	git pull
 	$BIN_DIR/build/run.sh $PWD
 	cd -
-	IMAGE_ID=`docker inspect $MODULE_NAME:latest | grep Id | cut -d: -f3`
+	IMAGE=`basename $(readlink -f $MODULE_DIR)`
+	IMAGE_ID=`docker inspect $IMAGE:latest | grep Id | cut -d: -f3`
 
 	# Restart service if a new image was generated
-	CONTAINER_ID=`docker ps -q -f name=^/$NAME$`
+	CONTAINER_ID=`docker ps -q -f name=^/$MODULE_NAME$`
 	CONTAINER_IMAGE_ID=`docker inspect $CONTAINER_ID | grep Image | grep sha256:  | cut -d: -f3`
 	if [[ "$IMAGE_ID" != "$CONTAINER_IMAGE_ID" ]]; then
-		echo "$MODULE_NAME: Update found, restarting $NAME.service"
-		sudo systemctl stop $NAME.service
-		sudo systemctl start $NAME.service
+		echo "[$MODULE_NAME] Update found, restarting $MODULE_NAME.service"
+		sudo systemctl stop $MODULE_NAME.service
+		sudo systemctl start $MODULE_NAME.service
 	else
-		echo "$MODULE_NAME: No update"
+		echo "[$MODULE_NAME] No update"
 	fi
 
 	# Clean-up old images
-	docker images | egrep "^$MODULE_NAME " | sort -r | tail -n +5 | awk '{print $3}' | xargs docker rmi
+	docker images | egrep "^$IMAGE " | sort -r | tail -n +5 | awk '{print $3}' | xargs docker rmi
 done

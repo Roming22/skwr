@@ -19,7 +19,7 @@ export MODULE_NAME=`basename $MODULE_DIR`
 source $MODULE_DIR/etc/service.cfg
 
 echo "##################################################"
-echo "$MODULE_NAME: Connecting"
+echo "[$MODULE_NAME] Connecting"
 
 # Make sure to start the containers on a segregated network
-docker exec -it $NAME bash
+docker exec -it $MODULE_NAME bash

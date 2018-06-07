@@ -18,13 +18,15 @@ export MODULE_NAME=`basename $MODULE_DIR`
 
 source $MODULE_DIR/etc/service.cfg
 
-$BIN_DIR/build/run.sh $VERBOSE $MODULE_DIR
+[[ `docker images $MODULE_NAME:latest | wc -l` = "1" ]] && $BIN_DIR/build/run.sh $VERBOSE $MODULE_DIR
 $BIN_DIR/stop/run.sh $VERBOSE $MODULE_DIR
 
 echo "##################################################"
-echo "$MODULE_NAME: Starting"
+echo "[$MODULE_NAME] Starting"
 
 # Make sure to start the containers on a segregated network
-DOCKER_NETWORK=${DOCKER_NETWORK:-$NAME}
+DOCKER_NETWORK=${DOCKER_NETWORK:-$MODULE_NAME}
+IMAGE=`basename $(readlink -f $MODULE_DIR)`
 docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
-docker run $DOCKER_OPTIONS --name $NAME --hostname $NAME $MODULE_NAME
+docker run $DOCKER_OPTIONS --rm --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE
+echo "[$MODULE_NAME] Start successful"

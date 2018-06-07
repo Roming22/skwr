@@ -17,18 +17,12 @@ done
 export MODULE_NAME=`basename $MODULE_DIR`
 
 
-echo "$MODULE_NAME: Stopping"
+echo "[$MODULE_NAME] Stopping"
 source $MODULE_DIR/etc/service.cfg
 
 # Kill running container
-CONTAINER_ID=`docker ps -q -f name=^/$NAME$`
-if [[ ! -z "$CONTAINER_ID" ]]; then
-	docker stop $NAME >/dev/null 2>&1
-	sleep 3
+CONTAINER_ID=`docker ps -q -f name=^/$MODULE_NAME$`
+if [[ -n "$CONTAINER_ID" ]]; then
+	docker stop $MODULE_NAME >/dev/null 2>&1
 fi
-
-# Delete stopped container
-CONTAINER_ID=`docker ps -a -q -f name=^/$NAME$`
-if [[ ! -z "$CONTAINER_ID" ]]; then
-  docker rm $NAME >/dev/null 2>&1
-fi
+echo "[$MODULE_NAME] Stopped"
