@@ -1,40 +1,61 @@
 #!/bin/bash
 SCRIPT_DIR=`cd $(dirname $0); pwd`
 
-BIN_DIR=`dirname $SCRIPT_DIR`
-TOOLS_DIR=`cd $SCRIPT_DIR/../.tools; pwd`
+usage(){
+	MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
+	echo "Modules:
+`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
 
-while [[ "$#" -gt 0 ]]; do
-	case $1 in
-		-v) set -x; VERBOSE="-v" ;;
-		*) MODULE_DIR=`$TOOLS_DIR/module_dir.sh $1`;;
-	esac
-	shift
-done
+Flags:
+  -h,--help       show this message
+  -v,--verbose    increase verbose level
+"
+}
 
-[[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
+init(){
+    BIN_DIR=`dirname $SCRIPT_DIR`
+    TOOLS_DIR=`cd $SCRIPT_DIR/../.tools; pwd`
+}
 
-MODULE_NAME=`basename $MODULE_DIR`
+parse_args(){
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            -h|--help) usage; exit 0;;
+            -v) set -x; VERBOSE="-v" ;;
+            *) MODULE_DIR=`$TOOLS_DIR/module_dir.sh $1`;;
+        esac
+        shift
+    done
 
-set -e
+    [[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
+    MODULE_NAME=`basename $MODULE_DIR`
+}
 
-echo "[$MODULE_NAME] Uninstalling"
-source $MODULE_DIR/etc/service.cfg
+run(){
+	set -e
 
-# Uninstall services
-echo "[$MODULE_NAME] Deactivating"
-for MODULE in $MODULE_NAME.service $MODULE_NAME-selfupdate.service; do
-	if [[ -e "/etc/systemd/system/$MODULE" ]]; then
-		sudo systemctl stop $MODULE
-		sudo systemctl disable $MODULE 2> /dev/null
-		sudo rm "/etc/systemd/system/$MODULE"
-	fi
-done
+	echo "[$MODULE_NAME] Uninstalling"
+	source $MODULE_DIR/etc/service.cfg
 
-# Clean the system
-echo "$MODULE_NAME: Cleaning configuration"
-sudo systemctl daemon-reload
-IMAGE_ID=`docker images -q $MODULE_NAME`
-[[ ! -z "$IMAGE_ID" ]] && docker rmi $IMAGE_ID
+	# Uninstall services
+	echo "[$MODULE_NAME] Deactivating"
+	for MODULE in $MODULE_NAME.service $MODULE_NAME-selfupdate.service; do
+		if [[ -e "/etc/systemd/system/$MODULE" ]]; then
+			sudo systemctl stop $MODULE
+			sudo systemctl disable $MODULE 2> /dev/null
+			sudo rm "/etc/systemd/system/$MODULE"
+		fi
+	done
 
-echo "[$MODULE_NAME] Uninstalled"
+	# Clean the system
+	echo "$MODULE_NAME: Cleaning configuration"
+	sudo systemctl daemon-reload
+	IMAGE_ID=`docker images -q $MODULE_NAME`
+	[[ ! -z "$IMAGE_ID" ]] && docker rmi $IMAGE_ID
+
+	echo "[$MODULE_NAME] Uninstalled"
+}
+
+init
+parse_args $*
+run

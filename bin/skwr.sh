@@ -33,10 +33,10 @@ parse_args(){
     esac
     shift
   done
-  echo $COMMAND $* $VERBOSE
+  COMMAND="$COMMAND $VERBOSE $*"
 }
 
 init
-COMMAND=`parse_args $*`
+parse_args $*
 $COMMAND
 
