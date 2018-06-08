@@ -21,7 +21,6 @@ set -e
 echo "[$MODULE_NAME] Installing"
 source $MODULE_DIR/etc/service.cfg
 
-
 for SERVICE in "" "-selfupdate"; do
 	[[ -e "/etc/systemd/system/$MODULE_NAME$SERVICE.service" ]] && sudo systemctl stop $MODULE_NAME$SERVICE
 
@@ -29,9 +28,21 @@ for SERVICE in "" "-selfupdate"; do
 	envsubst < $SCRIPT_DIR/etc/service$SERVICE.template | sudo tee /etc/systemd/system/$MODULE_NAME$SERVICE.service >/dev/null
 
 	sudo systemctl daemon-reload
-	echo "[$MODULE_NAME] Activating $MODULE_NAME$SERVICE"
+	echo -n "[$MODULE_NAME] Activating $MODULE_NAME$SERVICE "
 	sudo systemctl enable $MODULE_NAME$SERVICE 2> /dev/null
 	sudo systemctl start $MODULE_NAME$SERVICE
+	while ! `systemctl status $MODULE_NAME$SERVICE | grep -q "Active: active (running)"`; do
+		echo -n "."
+		sleep 1
+	done
+	echo
 done
 
+echo -n "[$MODULE_NAME] Waiting for service to be online "
+START_TIME=`systemctl status dns | grep Active: | awk '{print $6" "$7}'`
+while ! journalctl -u $MODULE_NAME --since="$START_TIME" | grep -q "\[$MODULE_NAME\] Started"; do
+	echo -n "."
+	sleep 1
+done
+echo
 echo "[$MODULE_NAME] Installed"
