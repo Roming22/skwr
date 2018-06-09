@@ -34,6 +34,7 @@ parse_args(){
 run(){
 	set -e
 
+	trap signal_handler INT
 	echo "[$MODULE_NAME] Installing"
 	source $MODULE_DIR/etc/service.cfg
 
@@ -62,6 +63,11 @@ run(){
 	done
 	echo
 	echo "[$MODULE_NAME] Installed"
+}
+
+signal_handler(){
+	echo
+	$BIN_DIR/uninstall/run.sh $VERBOSE $MODULE_DIR
 }
 
 init
