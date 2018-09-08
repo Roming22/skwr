@@ -44,7 +44,7 @@ run(){
 	DOCKER_NETWORK=${DOCKER_NETWORK:-$MODULE_NAME}
 	IMAGE=`basename $(readlink -f $MODULE_DIR)`
 	docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
-	docker run $DOCKER_OPTIONS --rm --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE
+	docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE
 }
 
 init
