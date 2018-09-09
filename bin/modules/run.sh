@@ -47,14 +47,14 @@ list(){
 	echo "Available modules in $MODULES_DIR:"
 	for M in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do
 		echo "  $(basename $M)"
-	done
+	done | sort
 }
 
 list-git(){
 	echo "Available modules in github.com/Roming22:"
 	curl -s "https://api.github.com/search/repositories?q=user:roming22&order=desc"| egrep "clone_url.*skwr-" | while read URL; do
 		echo $URL | sed 's:.*/skwr-\(.*\).git",$:  \1:'
-	done
+	done | sort
 }
 
 run(){
