@@ -55,14 +55,29 @@ run(){
 		echo
 	done
 
-	echo -n "[$MODULE_NAME] Waiting for service to be online "
-	START_TIME=`systemctl status dns | grep Active: | awk '{print $6" "$7}'`
-	while ! journalctl -u $MODULE_NAME --since="$START_TIME" | grep -q "\[$MODULE_NAME\] Started"; do
-		echo -n "."
-		sleep 1
-	done
-	echo
+	START_TIME=`systemctl status $MODULE_NAME | grep Active: | awk '{print $6" "$7}'`
+	timeout 300 cat <(wait_for_service) || service_error
 	echo "[$MODULE_NAME] Installed"
+}
+
+wait_for_service(){
+	echo -n "[$MODULE_NAME] Waiting for service to be online "
+	COUNT=1
+	while ! sudo journalctl -u $MODULE_NAME --since="$START_TIME" | grep -q "\[$MODULE_NAME\] Started"; do
+		case $COUNT in
+			4) echo -ne "\b\b\b   \b\b\b"; COUNT=0 ;;
+			*) echo -n "." ;;
+		esac
+		sleep 1
+		COUNT=$((COUNT + 1))
+	done
+}
+
+service_error(){
+	sleep 2
+	sudo journalctl -u $MODULE_NAME --since="$START_TIME"
+	$BIN_DIR/uninstall/run.sh $VERBOSE $MODULE_DIR
+	exit 1
 }
 
 signal_handler(){

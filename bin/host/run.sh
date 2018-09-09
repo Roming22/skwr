@@ -23,7 +23,7 @@ parse_args(){
 			-i|--ip) export LAN_IP=$2; shift ;;
 			-h|--help) usage; exit 0 ;;
 			-v) set -x; VERBOSE="-v" ;;
-			*) echo "unknown arg: $1"; usage; exit 1;;
+			*) echo "unknown arg: $1"; usage; exit 1 ;;
 		esac
 		shift
 	done
@@ -33,6 +33,13 @@ parse_args(){
 
 run(){
 	$SCRIPT_DIR/$ID/run.sh
+	setup_skwr
+}
+
+setup_skwr(){
+    SKWR_DIR=`cd $SCRIPT_DIR/../..; pwd`
+    [[ -e "/usr/local/bin/skwr" ]] && rm -f "/usr/local/bin/skwr"
+    ln -s "$SKWR_DIR/bin/skwr.sh" "/usr/local/bin/skwr"
 }
 
 init

@@ -30,8 +30,6 @@ install_packages(){
 				;;
 		esac
 	done
-
-	__rsync /usr
 }
 
 
@@ -88,7 +86,7 @@ __rsync(){
 	TARGET="$1"
 
 	[[ -d "$SOURCE" ]] && SOURCE="$SOURCE/" && mkdir -p "$TARGET"
-    rsync --archive --no-o --no-g "$SOURCE" "$TARGET"
+	rsync --archive --no-o --no-g "$SOURCE" "$TARGET"
 }
 
 install_packages
