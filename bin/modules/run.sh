@@ -3,7 +3,9 @@ SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
 	echo "Options:
+  -g,--get       clone a module from github
   -l,--list      list available modules
+  --list-git     list modules available on github
 
 Flags:
   -h,--help       show this message
@@ -20,10 +22,11 @@ init(){
 parse_args(){
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
+			-g|--get) ACTION="get"; MODULE=$2; shift ;;
 			-l|--list) ACTION="list" ;;
+			--list-git) ACTION="list-git" ;;
 			-h|--help) usage; exit 0 ;;
 			-v) set -x; VERBOSE="-v" ;;
-			*) MODULE_DIR=`$TOOLS_DIR/module_dir.sh $1` ;;
 		esac
 		shift
 	done
@@ -31,15 +34,31 @@ parse_args(){
 	[[ -z "$ACTION" ]] && ACTION=list
 }
 
+get(){
+	TARGET="$MODULES_DIR/$MODULE"
+	if [[ -e "$TARGET" ]]; then
+		echo "Module is already there"
+	fi 
+	git clone -q https://github.com/Roming22/skwr-$MODULE.git $TARGET
+	echo "New module: $MODULE"
+}
+
+list(){
+	echo "Available modules in $MODULES_DIR:"
+	for M in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do
+		echo "  $(basename $M)"
+	done
+}
+
+list-git(){
+	echo "Available modules in github.com/Roming22:"
+	curl -s "https://api.github.com/search/repositories?q=user:roming22&order=desc"| egrep "clone_url.*skwr-" | while read URL; do
+		echo $URL | sed 's:.*/skwr-\(.*\).git",$:  \1:'
+	done
+}
+
 run(){
-	case $ACTION in
-		list)
-			echo "Available modules in $MODULES_DIR:"
-			for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do
-				echo "  $(basename $C)";
-			done
-			;;
-	esac
+	$ACTION
 }
 
 init
