@@ -1,5 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR=`cd $(dirname $0); pwd`
+set -e
 
 usage(){
 MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
@@ -28,7 +29,11 @@ parse_args(){
 		shift
 	done
 
-	[[ -z "$LAN_IP" ]] && echo "--ip is mandatory" && usage && exit 1
+	if [[ -z "$LAN_IP" ]]; then
+		echo "--ip is mandatory"
+		usage
+		exit 1
+	fi
 }
 
 run(){
@@ -38,7 +43,9 @@ run(){
 
 setup_skwr(){
     SKWR_DIR=`cd $SCRIPT_DIR/../..; pwd`
-    [[ -e "/usr/local/bin/skwr" ]] && rm -f "/usr/local/bin/skwr"
+    if [[ -L "/usr/local/bin/skwr" ]]; then
+		rm -f "/usr/local/bin/skwr"
+	fi
     ln -s "$SKWR_DIR/bin/skwr.sh" "/usr/local/bin/skwr"
 }
 

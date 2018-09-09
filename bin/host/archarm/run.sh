@@ -6,7 +6,6 @@ if [[ "$UID" != "0" ]];then
 	exit 1
 fi
 set -e
-set -x
 
 # Install packages
 install_packages(){
@@ -64,10 +63,9 @@ setup_network(){
 	__rsync /etc/systemd/network
 	__rsync /etc/netctl
 	WLAN_MAC=`cat /sys/class/net/wlan0/address`
-	LO_MAC=`cat /sys/class/net/lo/address`
-	DOCKER_MAC=`cat /sys/class/net/docker0/address`
 	SOC_MAC=`cat /sys/class/net/*/address | grep $(echo $WLAN_MAC | cut -d: -f1-3) | grep -v $WLAN_MAC`
-	USB_MAC=`cat /sys/class/net/*/address | egrep -v "$LO_MAC|$WLAN_MAC|$SOC_MAC|$DOCKER_MAC"`
+	SOC_NAME=`grep $SOC_MAC /sys/class/net/*/address | cut -d: -f1 | cut -d/ -f5`
+	USB_MAC=`cat /sys/class/net/$(ls /sys/class/net/ | egrep -v "^lo$|^$SOC_NAME$|^wlan0$|^docker0$|^br-|^veth")/address`
 	sed -i -e "s|MACAddress=.*|MACAddress=$SOC_MAC|" /etc/systemd/network/10-ethsoc.link
 	sed -i -e "s|MACAddress=.*|MACAddress=$USB_MAC|" /etc/systemd/network/10-ethusb0.link
 
