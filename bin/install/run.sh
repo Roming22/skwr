@@ -71,9 +71,11 @@ wait_for_service(){
 		sleep 1
 		COUNT=$((COUNT + 1))
 	done
+	echo
 }
 
 service_error(){
+	echo
 	sleep 2
 	sudo journalctl -u $MODULE_NAME --since="$START_TIME"
 	$BIN_DIR/uninstall/run.sh $VERBOSE $MODULE_DIR
