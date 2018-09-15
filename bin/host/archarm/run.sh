@@ -61,26 +61,22 @@ setup_network(){
 	# Change the hostname
 	hostnamectl set-hostname rpi
 
-	# Initialize some variables
-	WLAN_MAC=`cat /sys/class/net/wlan0/address`
-	SOC_MAC=`cat /sys/class/net/*/address | grep $(echo $WLAN_MAC | cut -d: -f1-3) | grep -v $WLAN_MAC`
-	SOC_NAME=`grep $SOC_MAC /sys/class/net/*/address | cut -d: -f1 | cut -d/ -f5`
-	USB_MAC=`cat /sys/class/net/$(ls /sys/class/net/ | egrep -v "^lo$|^$SOC_NAME$|^wlan0$|^docker0$|^br-|^veth")/address`
-	USB_NAME=`grep $USB_MAC /sys/class/net/*/address | cut -d: -f1 | cut -d/ -f5`
+	GATEWAY=`ip route | grep default | awk '{print $3}'`
 
-	# Rename interfaces
-	ifconfig $SOC_NAME down
-	ip link set $SOC_NAME name wan0
-	ifconfig wan0 up
-	ifconfig $USB_NAME down
-	ip link set $USB_NAME name lan0
-	ifconfig lan0 up
+	IP=`ifconfig eth0 | grep " inet " | awk '{print $2}'`
+	PREFIX=`echo $IP | cut -d. -f1-3`
+	for SUFFIX in `seq 1 254`; do
+		NEW_IP="$PREFIX.$SUFFIX"
+		ping -c 1 $NEW_IP || break
+	done
 
-	# Persist change on reboot
-	rm -f /etc/systemd/network/*.network /etc/systemd/network/*.link
-	__rsync /etc/systemd/network
-	sed -i -e "s|MACAddress=.*|MACAddress=$SOC_MAC|" /etc/systemd/network/10-ethsoc.link
-	sed -i -e "s|MACAddress=.*|MACAddress=$USB_MAC|" /etc/systemd/network/10-ethusb0.link
+	echo "[Match]
+Name=eth0
+
+[Network]
+Address=$NEW_IP/24
+Gateway=$GATEWAY
+DNS=$GATEWAY" > /etc/systemd/network/eth0.network
 }
 
 __rsync(){

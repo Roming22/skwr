@@ -1,6 +1,0 @@
-[Match]
-MACAddress=
-
-[Link]
-Description=Motherboard Ethernet Port
-Name=wan0

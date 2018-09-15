@@ -5,8 +5,6 @@ set -e
 usage(){
 MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
 	echo "
-Options:
-  -i,--ip         IP of the router on the LAN
 
 Flags:
   -h,--help       show this message
@@ -21,19 +19,12 @@ init(){
 parse_args(){
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
-			-i|--ip) export LAN_IP=$2; shift ;;
 			-h|--help) usage; exit 0 ;;
 			-v) set -x; VERBOSE="-v" ;;
 			*) echo "unknown arg: $1"; usage; exit 1 ;;
 		esac
 		shift
 	done
-
-	if [[ -z "$LAN_IP" ]]; then
-		echo "--ip is mandatory"
-		usage
-		exit 1
-	fi
 }
 
 run(){

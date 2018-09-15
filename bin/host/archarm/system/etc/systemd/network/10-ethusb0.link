@@ -1,6 +1,0 @@
-[Match]
-MACAddress=
-
-[Link]
-Description=USB to Ethernet Adapter
-Name=lan0
