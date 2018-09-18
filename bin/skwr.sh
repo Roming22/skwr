@@ -3,12 +3,12 @@ SCRIPT_DIR=`cd $(dirname $(readlink -f $0)); pwd`
 
 usage(){
 echo "
-Commands:
-`for C in $(find $SCRIPT_DIR -name run.sh -exec dirname {} \;); do echo "  $(basename $C)"; done`
-
-Flags:
-  -h,--help	      show this message
+Options:
+  -h,--help       show this message
   -v,--verbose    increase verbose level
+
+Commands:
+`for C in $(find $SCRIPT_DIR -maxdepth 2 -name run.sh -exec dirname {} \; | sort); do echo "  $(basename $C)"; done`
 "
 }
 

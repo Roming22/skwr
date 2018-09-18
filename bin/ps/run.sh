@@ -2,9 +2,8 @@
 SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
-	MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
 	echo "
-Flags:
+Options:
   -h,--help       show this message
   -v,--verbose    increase verbose level
 "

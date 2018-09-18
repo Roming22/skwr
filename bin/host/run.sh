@@ -3,17 +3,15 @@ SCRIPT_DIR=`cd $(dirname $0); pwd`
 set -e
 
 usage(){
-MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
 	echo "
-
-Flags:
+Options:
   -h,--help       show this message
   -v,--verbose    increase verbose level
 "
 }
 
 init(){
-	source /etc/os-release
+	[[ -e "/etc/os-release" ]] && source /etc/os-release || ID=""
 }
 
 parse_args(){
@@ -28,6 +26,7 @@ parse_args(){
 }
 
 run(){
+	[[ -z "$ID" ]] && echo "[FATAL] Could not find the OS name" && exit 1
 	$SCRIPT_DIR/$ID/run.sh
 	setup_skwr
 }

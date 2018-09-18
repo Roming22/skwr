@@ -2,12 +2,11 @@
 SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
-	echo "Options:
+	echo "
+Options:
   -g,--get       clone a module from github
   -l,--list      list available modules
   --list-git     list modules available on github
-
-Flags:
   -h,--help       show this message
   -v,--verbose    increase verbose level
 "

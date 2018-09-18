@@ -3,12 +3,13 @@ SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
 	MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
-	echo "Modules:
-`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
-
-Flags:
+	echo "
+Options:
   -h,--help       show this message
   -v,--verbose    increase verbose level
+
+Modules:
+`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
 "
 }
 
@@ -42,7 +43,7 @@ run(){
 
 	# Make sure to start the containers on a segregated network
 	DOCKER_NETWORK=${DOCKER_NETWORK:-$MODULE_NAME}
-	IMAGE=`basename $(readlink -f $MODULE_DIR)`
+	IMAGE=`basename $(cd $MODULE_DIR; pwd)`
 	docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
 	trap signal_handler INT
 	docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE &

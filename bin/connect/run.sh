@@ -2,13 +2,13 @@
 SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
-	MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
-	echo "Modules:
-`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
-
-Flags:
+	echo "
+Options:
   -h,--help       show this message
   -v,--verbose    increase verbose level
+
+Modules: 
+`docker ps --format "{{ .Names}}" | sort | sed 's:^:  :'`
 "
 }
 

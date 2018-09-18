@@ -3,12 +3,13 @@ SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
 MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
-	echo "Modules:
-`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
-
-Flags:
+	echo "
+Options:
   -h,--help       show this message
   -v,--verbose    increase verbose level
+
+Modules:
+`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
 "
 }
 
@@ -30,7 +31,7 @@ parse_args(){
 	[[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
 	MODULE_NAME=`basename $MODULE_DIR`
 	DOCKER_DIR="$MODULE_DIR/docker"
-	TAG=`basename $(readlink -f $MODULE_DIR)`
+	TAG=`basename $(cd $MODULE_DIR; pwd)`
 }
 
 run(){

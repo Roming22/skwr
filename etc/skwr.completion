@@ -1,0 +1,73 @@
+#
+# Script for the auto-completion of the skwr command
+#
+
+
+
+_skwr_get_token_type(){
+	local line section
+	# Get the help text, clean-up the line, and match the token with the command/option
+	$command --help \
+	| awk '{print $1}' | tr ',' '\n' \
+	| while read line; do
+		case $line in
+			"Commands:|Options:") section=$(echo $COMMAND | cut -d: -f1) ;;
+			"") unset section ;;
+			$token) echo $section; return;;
+		esac
+	done
+}
+
+
+
+_skwr_generate_command(){
+	local token tokens type
+	command="${COMP_WORDS[0]}"
+	tokens=(${COMP_WORDS[@]:1:$COMP_CWORD-1})
+	for token in $tokens; do
+		type=$(_skwr_get_token_type)
+		if [[ "$type" = "Command" ]]; then
+			command="$command $token"
+		fi
+	done
+}
+
+
+
+_skwr_generate_compreply(){
+	local line section values
+
+	# Get the help text, and make a list of all the options/commands
+	while read line; do
+		case $line in
+			Options:|Commands:|Modules:) section="Parse" ;;
+			"") unset section ;;
+			*)	if [[ -n "$section" ]]; then
+					values="$values $(echo $line | awk '{print $1}' | tr ',' ' ')"
+				fi ;;
+		esac
+	done <<< $($command --help)
+
+	local cur
+	cur="${COMP_WORDS[$COMP_CWORD]}"    # the token requiring auto-completion
+	
+	# Handle the case when we are setting a flag value
+	[[ "$cur" == *=* ]] && flag=`echo $cur | cut -d= -f1 | sed "s:=$::"` cur=`echo $cur | cut -d= -f2`
+
+	COMPREPLY=( $(compgen -W "${values}" -- $cur) )
+}
+
+
+
+_skwr_completion() {
+	local command
+	_skwr_generate_command
+	_skwr_generate_compreply
+	return 0
+}
+
+
+
+# Register _skwr_completion for the skwr command
+#set -x
+complete -F _skwr_completion skwr

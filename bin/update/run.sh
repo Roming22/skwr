@@ -3,12 +3,13 @@ SCRIPT_DIR=`cd $(dirname $0); pwd`
 
 usage(){
 	MODULES_DIR=`cd $SCRIPT_DIR/../../modules; pwd`
-	echo "Modules:
-`for C in $(find $MODULES_DIR -mindepth 1 -maxdepth 1 -type d -o -type l | sort); do echo "  $(basename $C)"; done`
-
-Flags:
+	echo "
+Options:
   -h,--help       show this message
   -v,--verbose    increase verbose level
+
+Modules:
+`for M in $(ls /etc/systemd/system/*-selfupdate.service); do basename $M | sed 's:\(.*\)-selfupdate.*:  \1:'; done`
 "
 }
 
@@ -49,7 +50,7 @@ run(){
 		git pull
 		$BIN_DIR/build/run.sh $PWD
 		cd -
-		IMAGE=`basename $(readlink -f $MODULE_DIR)`
+		IMAGE=`basename $MODULE_DIR`
 		IMAGE_ID=`docker inspect $IMAGE:latest | grep Id | cut -d: -f3`
 
 		# Restart service if a new image was generated

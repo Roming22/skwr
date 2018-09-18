@@ -1,3 +1,2 @@
-etc/skwr.completion
 modules/*
 bin/host/**/authorized_keys
