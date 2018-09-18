@@ -11,7 +11,7 @@ _skwr_get_token_type(){
 	| awk '{print $1}' | tr ',' '\n' \
 	| while read line; do
 		case $line in
-			"Commands:|Options:") section=$(echo $COMMAND | cut -d: -f1) ;;
+			Commands:|Options:) section=$(echo $line | sed 's:..$::') ;;
 			"") unset section ;;
 			$token) echo $section; return;;
 		esac
@@ -23,7 +23,7 @@ _skwr_get_token_type(){
 _skwr_generate_command(){
 	local token tokens type
 	command="${COMP_WORDS[0]}"
-	tokens=(${COMP_WORDS[@]:1:$COMP_CWORD-1})
+	tokens=$(for i in $(seq 1 $((COMP_CWORD-1))); do echo ${COMP_WORDS[i]}; done)
 	for token in $tokens; do
 		type=$(_skwr_get_token_type)
 		if [[ "$type" = "Command" ]]; then
