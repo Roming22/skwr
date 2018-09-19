@@ -31,7 +31,7 @@ parse_args(){
 	[[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
 	MODULE_NAME=`basename $MODULE_DIR`
 	DOCKER_DIR="$MODULE_DIR/docker"
-	TAG=`basename $(cd $MODULE_DIR; pwd)`
+	TAG="skwr/`basename $(cd $MODULE_DIR; pwd)`"
 }
 
 run(){

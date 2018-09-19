@@ -43,7 +43,7 @@ run(){
 
 	# Make sure to start the containers on a segregated network
 	DOCKER_NETWORK=${DOCKER_NETWORK:-$MODULE_NAME}
-	IMAGE=`basename $(cd $MODULE_DIR; pwd)`
+	IMAGE="skwr/`basename $(cd $MODULE_DIR; pwd)`"
 	docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || docker network create $DOCKER_NETWORK
 	trap signal_handler INT
 	docker run $DOCKER_OPTIONS --rm --network $DOCKER_NETWORK --name $MODULE_NAME --hostname $MODULE_NAME $IMAGE &

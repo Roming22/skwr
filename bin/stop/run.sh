@@ -8,7 +8,7 @@ Options:
   -v,--verbose    increase verbose level
 
 Modules:
-`docker ps --format "{{ .Names}}" | sort | sed 's:^:  :'`
+`docker ps --format "{{.Names}}@{{.Image}}" | grep "@skwr/" | cut -d@ -f1 | sort | sed 's:^:  :'`
 "
 }
 

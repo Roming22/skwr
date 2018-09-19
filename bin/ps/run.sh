@@ -21,7 +21,7 @@ parse_args(){
 
 run(){
 	echo "NAME: STATUS (IMAGE)"
-	docker ps --format "{{.Names}}: {{.Status}} ({{.Image}})" | sort
+	docker ps --format "{{.Names}}: {{.Status}} ({{.Image}})" | grep "(skwr/" | sort
 }
 
 parse_args $*

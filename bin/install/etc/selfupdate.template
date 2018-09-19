@@ -1,12 +1,12 @@
 [Unit]
-Description=${DESCRIPTION} (self update)
+Description=Automatic update of the skwr containers
 After=docker.service
 Requires=docker.service
 
 [Service]
 #Restart=always
 TimeoutStartSec=0
-ExecStart=${BIN_DIR}/update/run.sh ${MODULE_DIR}
+ExecStart=${BIN_DIR}/update/run.sh --daemon
 
 [Install]
 WantedBy=multi-user.target

@@ -8,7 +8,7 @@ Options:
   -v,--verbose    increase verbose level
 
 Modules:
-`for M in $(ls /etc/systemd/system/*-selfupdate.service); do basename $M | sed 's:\(.*\)-selfupdate.*:  \1:'; done`
+`systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
 "
 }
 
@@ -29,6 +29,7 @@ parse_args(){
 
     [[ -z "$MODULE_DIR" ]] && echo "Specify the path of the module" && exit 1
     MODULE_NAME=`basename $MODULE_DIR`
+    [[ "${MODULE_NAME:0:4}" = "skwr" ]] && SERVICE_NAME="$MODULE_NAME" || SERVICE_NAME="skwr-$MODULE_NAME"
 }
 
 run(){
@@ -39,11 +40,11 @@ run(){
 
 	# Uninstall services
 	echo "[$MODULE_NAME] Deactivating"
-	for MODULE in $MODULE_NAME.service $MODULE_NAME-selfupdate.service; do
-		if [[ -e "/etc/systemd/system/$MODULE" ]]; then
-			sudo systemctl stop $MODULE
-			sudo systemctl disable $MODULE 2> /dev/null
-			sudo rm "/etc/systemd/system/$MODULE"
+	for SERVICE in $SERVICE_NAME.service $SERVICE_NAME-selfupdate.service; do
+		if [[ -e "/etc/systemd/system/$SERVICE" ]]; then
+			sudo systemctl stop $SERVICE
+			sudo systemctl disable $SERVICE 2> /dev/null
+			sudo rm "/etc/systemd/system/$SERVICE"
 		fi
 	done
 
