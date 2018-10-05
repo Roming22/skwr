@@ -36,7 +36,12 @@ setup_skwr(){
     if [[ -L "/usr/local/bin/skwr" ]]; then
 		rm -f "/usr/local/bin/skwr"
 	fi
-    ln -s "$SKWR_DIR/bin/skwr.sh" "/usr/local/bin/skwr"
+	ln -s "$SKWR_DIR/bin/skwr.sh" "/usr/local/bin/skwr"
+	for D in /usr/share/bash-completion/completions; do
+		if [[ -d "$D" ]];then
+			ln -s $SKWR_DIR/etc/skwr.completion $D/skwr
+		fi
+	done
 }
 
 init

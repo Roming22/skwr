@@ -8,7 +8,7 @@ _skwr_get_token_type(){
 	local line section
 	# Get the help text, clean-up the line, and match the token with the command/option
 	$command --help \
-	| awk '{print $1}' | tr ',' '\n' \
+	| awk '{print $1}' | sed 's:^-[^-]*,::' \
 	| while read line; do
 		case $line in
 			Commands:|Options:) section=$(echo $line | sed 's:..$::') ;;
@@ -43,7 +43,7 @@ _skwr_generate_compreply(){
 			Options:|Commands:|Modules:) section="Parse" ;;
 			"") unset section ;;
 			*)	if [[ -n "$section" ]]; then
-					values="$values $(echo $line | awk '{print $1}' | tr ',' ' ')"
+					values="$values $(echo $line | awk '{print $1}' | sed 's:^-[^-]*,::')"
 				fi ;;
 		esac
 	done <<< $($command --help)
