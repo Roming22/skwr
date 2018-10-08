@@ -71,7 +71,7 @@ update_image(){
 	git pull
 	$BIN_DIR/build/run.sh $PWD
 	cd -
-	IMAGE=`basename $MODULE_DIR`
+	IMAGE=skwr/`basename $MODULE_DIR`
 	IMAGE_ID=`docker inspect $IMAGE:latest | grep Id | cut -d: -f3`
 
 	# Restart service if a new image was generated

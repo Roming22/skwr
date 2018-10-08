@@ -59,7 +59,6 @@ run(){
 	timeout 300 cat <(wait_for_service) || service_error
 	echo "[$MODULE_NAME] Installed"
 
-	echo
 	install_selfupdate
 }
 
@@ -80,12 +79,25 @@ wait_for_service(){
 
 install_selfupdate(){
 	SERVICE_NAME="selfupdate"
-	echo "[$SERVICE_NAME] Installing"
-	envsubst < $SCRIPT_DIR/etc/selfupdate.template | sudo tee /etc/systemd/system/skwr_$SERVICE_NAME.service >/dev/null
-	sudo systemctl daemon-reload
-	sudo systemctl enable skwr_$SERVICE_NAME.service
-	sudo systemctl restart skwr_$SERVICE_NAME.service
-	echo "[$SERVICE_NAME] Installed"
+	SERVICE_FILE="skwr_$SERVICE_NAME.service"
+	envsubst < $SCRIPT_DIR/etc/selfupdate.template > /tmp/$SERVICE_FILE
+
+	if [[ ! -e "/etc/systemd/system/$SERVICE_FILE" ]]; then
+		INSTALL="true"
+	else
+		cmp -s /tmp/$SERVICE_FILE /etc/systemd/system/$SERVICE_FILE || INSTALL="true"
+	fi
+
+	if [[ -n "$INSTALL" ]]; then
+		echo
+		echo "[$SERVICE_NAME] Installing"
+		sudo cp /tmp/$SERVICE_FILE /etc/systemd/system/
+		sudo systemctl daemon-reload
+		sudo systemctl enable $SERVICE_FILE
+		sudo systemctl restart $SERVICE_FILE
+		echo "[$SERVICE_NAME] Installed"
+	fi
+	rm /tmp/$SERVICE_FILE
 }
 
 service_error(){
