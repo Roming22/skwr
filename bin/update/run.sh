@@ -7,6 +7,7 @@ usage(){
 Options:
   -h,--help       show this message
   -d,--daemon     run the update continuously
+  -q,--quiet      minimum amount of logging
   -v,--verbose    increase verbose level
 
 Modules:
@@ -20,25 +21,25 @@ init(){
 }
 
 parse_args(){
-    while [[ "$#" -gt 0 ]]; do
-        case $1 in
-            -h|--help) usage; exit 0;;
-            -d|--daemon) DAEMON="true" ;;
-            -v) set -x; VERBOSE="-v" ;;
-            *) MODULE_DIRS=`$MODULE_DIRS $1`;;
-        esac
-        shift
-    done
+	while [[ "$#" -gt 0 ]]; do
+		case $1 in
+			-h|--help) usage; exit 0;;
+			-d|--daemon) DAEMON="true" ;;
+			-q|--quiet) QUIET="true" ;;
+			-v) set -x; VERBOSE="-v" ;;
+			*) MODULE_NAMES=`$MODULE_NAMES $1`;;
+		esac
+		shift
+	done
 
-    [[ -z "$MODULE_DIRS" ]] && MODULE_DIRS=`systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
-	[[ -z "$MODULE_DIRS" ]] && echo "No module to process" && exit 1
-	MODULE_DIRS=("$MODULE_DIRS")
+	[[ -z "$MODULE_NAMES" ]] && MODULE_NAMES=`systemctl | egrep "^skwr-" | sed 's:^skwr-\(.*\).service .*:\1:'`
+	[[ -z "$MODULE_NAMES" ]] && echo "No module to process" && exit 1
+	MODULE_NAMES=("$MODULE_NAMES")
 }
 
 run(){
-	echo "##################################################"
-	echo "Modules:"
-	echo "$MODULE_DIRS"
+	echo "### RUN as ${USER} ####################################" | cut -b1-50
+	echo "Modules: $MODULE_NAMES" | tr '\n' ',' | sed -e 's:,\(.\):, \1:g' -e 's:,$:\n:';
 	[[ -n "$DAEMON" ]] && run_daemon || update_images
 	exit $?
 	echo "Done"
@@ -47,30 +48,33 @@ run(){
 run_daemon(){
 	while [[ true ]]; do
 		# Wait for 10 to 20 minutes before checking for any update
-		INTERVAL=$((600 + (RANDOM % 600) ))
-		echo "Sleeping until `date --date="$INTERVAL seconds" +'%b %d %H:%M:%S'`"
+		INTERVAL=$(( 600 + (RANDOM % 600) ))
+		echo "### UPDATE at `date --date="$INTERVAL seconds" +'%b %d %H:%M:%S'` ####################"
 		sleep $INTERVAL
 		update_images
 	done
 }
 
 update_images(){
-	for MODULE_DIR in $MODULE_DIRS; do
-		update_image
+	for MODULE_NAME in $MODULE_NAMES; do
+		[[ -z "$QUIET" ]] && build_image || build_image >/dev/null
+		check_image
+		[[ -z "$QUIET" ]] && clean_images || clean_images >/dev/null
 	done
 }
 
-update_image(){
-	MODULE_DIR=`$TOOLS_DIR/module_dir.sh $MODULE_DIR`
-	MODULE_NAME=`basename $MODULE_DIR`
+build_image(){
+	MODULE_DIR=`$TOOLS_DIR/module_dir.sh $MODULE_NAME`
 
-	echo "##################################################"
-	echo "[$MODULE_NAME] Starting"
+	echo "### $MODULE_NAME ####################################" | cut -b1-50
 	source $MODULE_DIR/etc/service.cfg
 	cd $MODULE_DIR
 	git pull
 	$BIN_DIR/build/run.sh $PWD
-	cd -
+	cd - >/dev/null
+}
+
+check_image(){
 	IMAGE=skwr/`basename $MODULE_DIR`
 	IMAGE_ID=`docker inspect $IMAGE:latest | grep Id | cut -d: -f3`
 
@@ -85,7 +89,9 @@ update_image(){
 	else
 		echo "[$MODULE_NAME] No update"
 	fi
+}
 
+clean_images(){
 	# Clean-up old images
 	docker images | egrep "^$IMAGE " | sort -r | tail -n +5 | awk '{print $3}' | while read IMAGE; do
 		docker rmi $IMAGE

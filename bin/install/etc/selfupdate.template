@@ -6,7 +6,8 @@ Requires=docker.service
 [Service]
 #Restart=always
 TimeoutStartSec=0
-ExecStart=${BIN_DIR}/update/run.sh --daemon
+User=${USER}
+ExecStart=${BIN_DIR}/update/run.sh --daemon --quiet
 
 [Install]
 WantedBy=multi-user.target
