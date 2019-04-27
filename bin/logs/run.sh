@@ -39,7 +39,7 @@ run(){
 	echo "[$MODULE_NAME] Streaming logs"
 
 	# Make sure to start the containers on a segregated network
-	docker logs -f $MODULE_NAME
+	docker logs -tf $MODULE_NAME
 }
 
 init
