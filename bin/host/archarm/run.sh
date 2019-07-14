@@ -7,12 +7,16 @@ if [[ "$UID" != "0" ]];then
 fi
 set -e
 
-# Install packages
-install_packages(){
+
+update_system(){
 	pacman-key --init
 	pacman-key --populate archlinuxarm
-	pacman -Sy
-	for PACKAGE in docker git rsync sudo vim; do
+	pacman -Syyu
+}
+
+
+install_packages(){
+	for PACKAGE in docker git podman rsync sudo vim; do
 		echo "Installing $PACKAGE..."
 		pacman -S --noconfirm $PACKAGE
 		case $PACKAGE in
@@ -29,11 +33,9 @@ install_packages(){
 				;;
 		esac
 	done
-	pacman -Syu --noconfirm
 }
 
 
-# Setup users
 setup_users(){
 	# Setup pi user
 	if [[ ! -e "/home/pi" ]]; then
@@ -87,6 +89,7 @@ __rsync(){
 	rsync --archive --no-o --no-g "$SOURCE" "$TARGET"
 }
 
+update_system
 install_packages
 setup_users
 setup_network
