@@ -6,40 +6,43 @@
 - name: Install docker
   when: ansible_local["bin"]["docker"] == ""
   block:
-    - name: Install dependencies
-      become: yes
+    - name: Install docker dependencies
+      become: true
       become_user: root
       apt:
         name:
-          - apt-transport-https
           - ca-certificates
-          - gnupg2
+          - curl
+          - gnupg
         state: present
 
     - name: Add Docker GPG apt Key
-      become: yes
+      become: true
       become_user: root
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
     - name: Add Docker Repository
-      become: yes
+      become: true
       become_user: root
       apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu {{ ansible_facts.distribution_release }} stable
         state: present
 
     - name: Install Docker
-      become: yes
+      become: true
       become_user: root
       package:
-        name: docker-ce
+        name:
+          - containerd.io
+          - docker-ce
+          - docker-ce-cli
         state: present
 
 - name: Enable the docker service
   when: ansible_local["docker"]["service_enabled"] == false
-  become: yes
+  become: true
   become_user: root
   service:
     name: docker
@@ -50,7 +53,7 @@
   when: ansible_local["docker"]["group_set"] == false
   block:
     - name: Ensure ansible user is added to the docker group
-      become: yes
+      become: true
       become_user: root
       user:
         name: "{{ ansible_user }}"
@@ -58,7 +61,7 @@
         append: true
 
     - name: Reboot the machine to guarantee that groups have been applied
-      become: yes
+      become: true
       become_user: root
       reboot:
         reboot_timeout: 900

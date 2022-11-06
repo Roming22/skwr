@@ -15,5 +15,4 @@
 - name: single node clusters
   hosts: k3d:single_nodes
   roles:
-    - nas
     - single_node

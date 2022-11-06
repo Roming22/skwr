@@ -9,18 +9,22 @@ install_kubectl(){
 			x86_64) ARCH="amd64" ;;
 	esac
 	BIN="$(command -v kubectl; true)"
-	BIN_VERSION="$(${BIN} version --client --short | sed "s:.* ::"; true)"
+	if [[ -z "$BIN" ]]; then
+		BIN_VERSION="Not installed"
+	else
+		BIN_VERSION="$(${BIN} version --client --output json | jq -r ".clientVersion.gitVersion" || echo "None")"
+	fi
 
-	if [[ -z "${BIN}" || "${BIN_VERSION}" != "${LATEST_VERSION}" ]]; then
+	if [[ "${BIN_VERSION}" != "${LATEST_VERSION}" ]]; then
 		URL="https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/${ARCH}/kubectl"
 		echo "Installing kubectl from '$URL'"
-		curl -LO "${URL}"
+		curl -LO --fail --silent "${URL}"
 		chmod a+x "kubectl"
 		mkdir -p "${HOME}/.local/bin"
-		mv "kubectl" "${HOME}/.local/bin/kubectl"
+		sudo mv "kubectl" "/usr/local/bin/kubectl"
+		kubectl completion "$(basename "${SHELL}")" | sudo tee /etc/bash_completion.d/kubectl >/dev/null
 	fi
-	kubectl version --client --short
-	kubectl completion "$(basename "${SHELL}")" | sudo tee /etc/bash_completion.d/kubectl
+	kubectl version --client --output yaml
 }
 
 install_kubectl

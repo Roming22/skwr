@@ -8,7 +8,7 @@
         dest: /var/ansible/tmp/kubectl
 
     - name: Install kubectl
-      become: yes
+      become: true
       become_user: root
       shell: |
         rm /usr/local/bin/kubectl || true; \
@@ -16,7 +16,7 @@
         && rm /var/ansible/tmp/kubectl
 
     - name: Bash completion for kubectl
-      become: yes
+      become: true
       become_user: root
       shell: |
         kubectl completion "$(basename "${SHELL}")" > /etc/bash_completion.d/kubectl

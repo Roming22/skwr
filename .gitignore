@@ -1,3 +1,4 @@
 images
 tmp
 *.secret
+install/k3d/ansible/hosts.yml

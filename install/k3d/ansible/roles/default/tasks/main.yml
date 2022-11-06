@@ -6,7 +6,7 @@
 - name: Setup Ansible facts
   block:
     - name: Ansible var dir
-      become: yes
+      become: true
       become_user: root
       file:
         path: /var/ansible
@@ -22,7 +22,7 @@
         mode: 0775
 
     - name: Copy facts
-      become: yes
+      become: true
       become_user: root
       ansible.posix.synchronize:
         src: ../resources/facts.d
